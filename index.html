@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broiler Feasibility Study Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g1: #0d2b12;
+    --g2: #1a5c24;
+    --g3: #2e8b3a;
+    --g4: #56c464;
+    --g5: #a8e6af;
+    --gold: #e8b923;
+    --gold2: #fde27a;
+    --bg: #f0f7f1;
+    --card: #ffffff;
+    --border: #cce8ce;
+    --text: #0d1f10;
+    --muted: #5a7d5e;
+    --red: #c0392b;
+    --radius: 14px;
+    --shadow: 0 4px 28px rgba(13,43,18,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 60%, var(--g3) 100%);
+    color: #fff;
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.22);
+  }
+  header::before {
+    content: '';
+    position: absolute; top:-60px; left:-60px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(86,196,100,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute; bottom:-40px; right:-30px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(232,185,35,0.13) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hdr-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+  header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  header p  { font-size: 0.92rem; opacity: 0.75; margin-top: 6px; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: var(--g1);
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .prog-step {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    cursor: pointer;
+    padding: 14px 6px;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .prog-step .dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+    flex-shrink: 0;
+  }
+  .prog-step .lbl {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 600;
+    margin: 0 8px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .prog-step .line {
+    width: 30px; height: 2px;
+    background: rgba(255,255,255,0.1);
+    transition: all 0.3s;
+  }
+  .prog-step.active .dot {
+    background: var(--g4);
+    border-color: var(--g4);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(86,196,100,0.5);
+  }
+  .prog-step.active .lbl { color: #fff; }
+  .prog-step.done .dot {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--g1);
+  }
+  .prog-step.done .line { background: var(--gold); }
+
+  /* ── MAIN ── */
+  .main {
+    max-width: 920px;
+    margin: 28px auto 60px;
+    padding: 0 16px;
+  }
+
+  .section { display: none; animation: fadeUp 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: none; }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px 24px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--g5);
+  }
+  .card-header .icon-box {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--g2), var(--g4));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .card-header h2 { font-size: 1.05rem; font-weight: 700; color: var(--g1); }
+  .card-header p  { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: linear-gradient(90deg, #f0faf1, #f5fdf6);
+    border-left: 4px solid var(--g4);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.75;
+  }
+  .info-box strong { color: var(--g2); }
+
+  /* ── FORM GRID ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media(max-width:580px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .field input, .field select {
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 13px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.93rem;
+    color: var(--text);
+    background: #f8fbf8;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: var(--g3);
+    box-shadow: 0 0 0 3px rgba(46,139,58,0.12);
+    background: #fff;
+  }
+  .field input:disabled { background: #eee; color: #999; cursor: not-allowed; }
+  .field .hint { font-size: 0.72rem; color: #88b98c; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── ITEM BLOCK ── */
+  .item-block {
+    background: #f8fbf8;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: box-shadow 0.2s;
+  }
+  .item-block:hover { box-shadow: 0 3px 14px rgba(46,139,58,0.08); }
+  .item-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .item-label { font-size: 0.82rem; font-weight: 700; color: var(--g1); }
+  .del-btn {
+    background: #ffeaea;
+    border: none;
+    color: var(--red);
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .del-btn:hover { background: var(--red); color: #fff; }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block; width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--g2), var(--g4));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 18px;
+    letter-spacing: 0.3px;
+    transition: all 0.22s;
+    box-shadow: 0 4px 16px rgba(46,139,58,0.22);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(46,139,58,0.3); }
+
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px;
+    background: #fff;
+    border: 2px dashed var(--g3);
+    color: var(--g2);
+    border-radius: 9px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: all 0.2s;
+  }
+  .btn-add:hover { background: var(--g4); color: #fff; border-color: transparent; }
+
+  .btn-reset {
+    background: #fff;
+    border: 2px solid var(--border);
+    color: var(--muted);
+    padding: 10px 24px;
+    border-radius: 9px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--g3); color: var(--g2); }
+
+  /* ── SUMMARY GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  @media(max-width:580px){ .kpi-grid { grid-template-columns: 1fr 1fr; } }
+
+  .kpi-card {
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+  }
+  .kpi-card.green  { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; }
+  .kpi-card.bright { background: linear-gradient(135deg, var(--g2), var(--g4)); color: #fff; }
+  .kpi-card.gold   { background: linear-gradient(135deg, #8a6200, var(--gold)); color: var(--g1); }
+  .kpi-card.profit { background: linear-gradient(135deg, #0d4d16, var(--g3)); color: #fff; }
+  .kpi-label { font-size: 0.7rem; font-weight: 600; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; }
+  .kpi-val   { font-size: 1.3rem; font-weight: 800; margin: 6px 0 2px; font-family: 'JetBrains Mono', monospace; }
+  .kpi-sub   { font-size: 0.68rem; opacity: 0.7; }
+
+  /* ── RESULT TABLES ── */
+  .rtable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+  }
+  .rtable thead th {
+    background: linear-gradient(90deg, var(--g1), var(--g2));
+    color: #fff;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.2px;
+  }
+  .rtable thead th:first-child { border-radius: 8px 0 0 0; }
+  .rtable thead th:last-child  { border-radius: 0 8px 0 0; }
+  .rtable tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #e8f5e9;
+    font-size: 0.85rem;
+  }
+  .rtable tbody tr:nth-child(even) td { background: #f5fbf5; }
+  .rtable tbody tr.total-row td {
+    font-weight: 800;
+    background: #e8f5e9;
+    color: var(--g1);
+    font-size: 0.9rem;
+  }
+  .num { font-family: 'JetBrains Mono', monospace; color: var(--g2); font-weight: 600; }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* ── PROFITABILITY TABLE ── */
+  .ptable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+  .ptable thead th {
+    background: var(--g1);
+    color: #fff;
+    padding: 11px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .ptable thead th:first-child { text-align: left; }
+  .ptable tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #e0f0e0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+  }
+  .ptable tbody td:first-child {
+    text-align: left;
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    color: var(--g1);
+    font-size: 0.82rem;
+  }
+  .ptable tbody tr:nth-child(even) td { background: #f4faf4; }
+  .green-val  { color: #1b7e1b; font-weight: 700; }
+  .red-val    { color: var(--red); font-weight: 700; }
+
+  /* ── VERDICT ── */
+  .verdict {
+    display: flex; align-items: center; gap: 12px;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 18px;
+  }
+  .verdict.profit  { background: #e8f5e9; color: #1b5e20; border: 2px solid #4caf50; }
+  .verdict.loss    { background: #ffebee; color: #b71c1c; border: 2px solid #ef5350; }
+  .verdict .icon   { font-size: 1.8rem; }
+
+  /* ── PRINT BTN ── */
+  .btn-print {
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    border: none;
+    color: var(--g1);
+    padding: 10px 24px;
+    border-radius: 9px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    margin-right: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(232,185,35,0.3);
+  }
+  .btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,185,35,0.4); }
+
+  /* ── NO RESULTS ── */
+  #noResults {
+    text-align: center;
+    padding: 50px 20px;
+  }
+  #noResults .big-icon { font-size: 4rem; margin-bottom: 14px; }
+  #noResults p { color: var(--muted); font-size: 1rem; }
+
+  @media print {
+    header .badge, .progress-wrap, .btn-primary, .btn-add, .btn-reset, .btn-print { display:none !important; }
+    body { background: #fff; }
+    .section { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<header>
+  <span class="hdr-icon">🐔</span>
+  <h1>Broiler Feasibility Study Calculator</h1>
+  <p>Enter your project data and get a complete economic analysis with profitability measures</p>
+  <span class="badge">Veterinary Project Analysis Tool</span>
+</header>
+
+<!-- ═══════════════════════════════ PROGRESS ═══════════════════════════════ -->
+<div class="progress-wrap">
+  <div class="prog-step active" id="ps1" onclick="goSection('s1',0)">
+    <div class="dot">1</div>
+    <div class="lbl">Basic Info</div>
+    <div class="line"></div>
+  </div>
+  <div class="prog-step" id="ps2" onclick="goSection('s2',1)">
+    <div class="dot">2</div>
+    <div class="lbl">Fixed Costs</div>
+    <div class="line"></div>
+  </div>
+  <div class="prog-step" id="ps3" onclick="goSection('s3',2)">
+    <div class="dot">3</div>
+    <div class="lbl">Variable Costs</div>
+    <div class="line"></div>
+  </div>
+  <div class="prog-step" id="ps4" onclick="goSection('s4',3)">
+    <div class="dot">4</div>
+    <div class="lbl">Returns</div>
+    <div class="line"></div>
+  </div>
+  <div class="prog-step" id="ps5" onclick="goSection('s5',4)">
+    <div class="dot">5</div>
+    <div class="lbl">Results</div>
+    <div class="line" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+
+  <!-- ─── STEP 1 – Basic Info ─── -->
+  <div id="s1" class="section active">
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-box">📋</div>
+        <div><h2>Basic Project Information</h2><p>Core inputs used across all calculations</p></div>
+      </div>
+      <div class="info-box">
+        Enter the fundamental parameters of your broiler project. These values drive all cost and return calculations.
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Chicks per Cycle</label>
+          <input type="number" id="chicks" value="5000" min="100">
+          <span class="hint">e.g. 5000 chicks</span>
+        </div>
+        <div class="field">
+          <label>Cycles per Year</label>
+          <input type="number" id="cycles" value="6" min="1" max="12">
+          <span class="hint">e.g. 6 cycles/year</span>
+        </div>
+        <div class="field">
+          <label>Mortality Rate (%)</label>
+          <input type="number" id="mortality" value="2" min="0" max="50" step="0.1">
+          <span class="hint">e.g. 2% mortality per cycle</span>
+        </div>
+        <div class="field">
+          <label>Average Selling Weight (kg/bird)</label>
+          <input type="number" id="avgWeight" value="2" min="0.5" step="0.1">
+          <span class="hint">e.g. 2 kg per bird</span>
+        </div>
+        <div class="field">
+          <label>Selling Price per kg (EGP)</label>
+          <input type="number" id="pricePerKg" value="27" min="1">
+          <span class="hint">e.g. 27 EGP/kg</span>
+        </div>
+        <div class="field">
+          <label>Credit Interest Rate (%)</label>
+          <input type="number" id="creditRate" value="14.3" min="0" max="100" step="0.1">
+          <span class="hint">Fixed rate used for credit scenarios: 14.3%</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goSection('s2',1)">Next: Fixed Costs →</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 2 – Fixed Costs ─── -->
+  <div id="s2" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-box">🏗️</div>
+        <div><h2>Fixed Costs & Depreciation</h2><p>Investment costs that don't change with production level</p></div>
+      </div>
+      <div class="info-box">
+        <strong>Depreciation/year</strong> = Investment Cost ÷ Asset Lifespan (years)<br>
+        <strong>Depreciation/cycle</strong> = Depreciation/year ÷ Number of cycles per year<br>
+        Fixed costs are not affected by increases or decreases in production.
+      </div>
+      <div id="fixedContainer"></div>
+      <button class="btn-add" onclick="addFixed()">＋ Add Fixed Item</button>
+      <button class="btn-primary" onclick="goSection('s3',2)">Next: Variable Costs →</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 3 – Variable Costs ─── -->
+  <div id="s3" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-box">📦</div>
+        <div><h2>Variable Costs per Cycle</h2><p>Costs that change with production volume</p></div>
+      </div>
+      <div class="info-box">
+        Variable costs increase or decrease with production. They include chicks, feed, drugs, labor, and all operational expenses.
+        <br><strong>Chick cost is auto-calculated</strong> from the number of chicks × price per chick.
+      </div>
+      <div id="varContainer"></div>
+      <button class="btn-add" onclick="addVar()">＋ Add Variable Item</button>
+      <button class="btn-primary" onclick="goSection('s4',3)">Next: Returns →</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 4 – Returns ─── -->
+  <div id="s4" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-box">💰</div>
+        <div><h2>Total Returns</h2><p>All revenue sources from the project</p></div>
+      </div>
+      <div class="info-box">
+        <strong>Birds sold per cycle</strong> = Chicks × (1 − Mortality%) <br>
+        <strong>Broiler sales</strong> = Birds sold × Avg. weight (kg) × Price per kg<br>
+        Additional revenue: litter (bedding) sales, and any other income.
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Litter Sales per Cycle (EGP)</label>
+          <input type="number" id="litterSales" value="3300" min="0">
+          <span class="hint">Revenue from selling litter/bedding</span>
+        </div>
+        <div class="field">
+          <label>Other Revenue per Cycle (EGP)</label>
+          <input type="number" id="otherReturns" value="0" min="0">
+          <span class="hint">Any additional income per cycle</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="calculate()">🔢 Calculate Full Results</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 5 – Results ─── -->
+  <div id="s5" class="section">
+
+    <div id="resultsWrap" style="display:none;">
+
+      <!-- KPI SUMMARY -->
+      <div class="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-label">Total Cost / Cycle</div>
+          <div class="kpi-val" id="k_tc_cycle">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+        <div class="kpi-card bright">
+          <div class="kpi-label">Total Return / Cycle</div>
+          <div class="kpi-val" id="k_tr_cycle">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+        <div class="kpi-card profit">
+          <div class="kpi-label">Net Profit / Cycle</div>
+          <div class="kpi-val" id="k_np_cycle">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Total Cost / Year</div>
+          <div class="kpi-val" id="k_tc_year">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+        <div class="kpi-card bright">
+          <div class="kpi-label">Total Return / Year</div>
+          <div class="kpi-val" id="k_tr_year">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-label">Net Profit / Year</div>
+          <div class="kpi-val" id="k_np_year">—</div>
+          <div class="kpi-sub">EGP</div>
+        </div>
+      </div>
+
+      <!-- Fixed Costs Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="icon-box">🏗️</div>
+          <div><h2>Fixed Costs Table</h2><p>Depreciation breakdown per item</p></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="rtable">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Investment Cost (EGP)</th>
+                <th>Lifespan (yrs)</th>
+                <th>Depreciation / Year</th>
+                <th>Depreciation / Cycle</th>
+              </tr>
+            </thead>
+            <tbody id="fixedResultTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Variable Costs Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="icon-box">📦</div>
+          <div><h2>Variable Costs Table</h2><p>Per cycle and per year breakdown</p></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="rtable">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Value / Cycle (EGP)</th>
+                <th>Value / Year (EGP)</th>
+              </tr>
+            </thead>
+            <tbody id="varResultTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Total Costs Summary -->
+      <div class="card">
+        <div class="card-header">
+          <div class="icon-box">💼</div>
+          <div><h2>Total Costs Summary</h2><p>Fixed depreciation + variable costs combined</p></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="rtable">
+            <thead>
+              <tr><th>Item</th><th>Per Cycle (EGP)</th><th>Per Year (EGP)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fixed Cost Depreciation</td>
+                <td class="num" id="s_fixDep_c">—</td>
+                <td class="num" id="s_fixDep_y">—</td>
+              </tr>
+              <tr>
+                <td>Variable Costs</td>
+                <td class="num" id="s_var_c">—</td>
+                <td class="num" id="s_var_y">—</td>
+              </tr>
+              <tr class="total-row">
+                <td>Total Costs</td>
+                <td class="num" id="s_tot_c">—</td>
+                <td class="num" id="s_tot_y">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Returns Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="icon-box">💰</div>
+          <div><h2>Total Returns Table</h2><p>Revenue breakdown per cycle and per year</p></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="rtable">
+            <thead>
+              <tr><th>Item</th><th>Details</th><th>Per Cycle (EGP)</th><th>Per Year (EGP)</th></tr>
+            </thead>
+            <tbody id="returnTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Economic Analysis -->
+      <div class="card">
+        <div class="card-header">
+          <div class="icon-box">📊</div>
+          <div><h2>Economic Analysis — Profitability Measures</h2><p>Three credit scenarios compared side by side</p></div>
+        </div>
+        <div class="info-box">
+          <strong>Without Credit:</strong> Total Capital = Investment Costs + Variable Costs (without labor) — rounded capital used as first-cycle working capital.<br>
+          <strong>50% / 100% Credit:</strong> Total Costs = Total Capital × credit% × interest rate + costs without credit.
+        </div>
+        <div class="tbl-wrap">
+          <table class="ptable">
+            <thead>
+              <tr>
+                <th style="min-width:220px;">Indicator</th>
+                <th>Without Credit</th>
+                <th>50% Credit</th>
+                <th>100% Credit</th>
+              </tr>
+            </thead>
+            <tbody id="econTbody"></tbody>
+          </table>
+        </div>
+
+        <div id="verdictDiv"></div>
+
+        <div style="margin-top:16px; display:flex; flex-wrap:wrap; gap:10px;">
+          <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+          <button class="btn-reset" onclick="resetAll()">↺ Recalculate</button>
+        </div>
+      </div>
+
+    </div><!-- /resultsWrap -->
+
+    <!-- PLACEHOLDER -->
+    <div id="noResults" class="card">
+      <div class="big-icon">📊</div>
+      <p>Complete the input steps above, then click <strong>"Calculate Full Results"</strong> to see the analysis.</p>
+    </div>
+
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let fixedItems = [];
+let varItems   = [];
+let currentStep = 0;
+
+// ═══════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════
+function fmt(n)  { return isNaN(n) ? '0' : Math.round(n).toLocaleString('en-US'); }
+function fmtF(n) { return isNaN(n) ? '0' : parseFloat(n.toFixed(2)).toLocaleString('en-US'); }
+function pct(n)  { const c = n>=0?'green-val':'red-val'; return `<span class="${c}">${fmtF(n)}%</span>`; }
+function money(n){ const c = n>=0?'green-val':'red-val'; return `<span class="${c}">${fmt(n)}</span>`; }
+
+// ═══════════════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════════════
+function goSection(id, idx) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentStep = idx;
+  document.querySelectorAll('.prog-step').forEach((ps, i) => {
+    ps.classList.remove('active','done');
+    if (i < idx)  ps.classList.add('done');
+    if (i === idx) ps.classList.add('active');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  fixedItems = [
+    { name:'Building',   cost:500000, years:20 },
+    { name:'Equipment',  cost:30000,  years:5  },
+  ];
+  varItems = [
+    { name:'Chicks',                          valueCycle:0,      auto:true  },
+    { name:'Feeding & Ration',                valueCycle:118000, auto:false },
+    { name:'Drugs & Vaccines',                valueCycle:20000,  auto:false },
+    { name:'Labor',                           valueCycle:4000,   auto:false },
+    { name:'Veterinary Supervision',          valueCycle:800,    auto:false },
+    { name:'Transport & Other Costs',         valueCycle:2000,   auto:false },
+    { name:'Fuel, Water & Electrolytes',      valueCycle:500,    auto:false },
+    { name:'Litter Bedding',                  valueCycle:1000,   auto:false },
+    { name:'Miscellaneous Costs',             valueCycle:2000,   auto:false },
+  ];
+  renderFixed();
+  renderVar();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FIXED ITEMS RENDER
+// ═══════════════════════════════════════════════════════════
+function renderFixed() {
+  const cycles = parseFloat(document.getElementById('cycles').value) || 6;
+  const c = document.getElementById('fixedContainer');
+  c.innerHTML = '';
+  fixedItems.forEach((item, i) => {
+    const depY = item.cost / item.years;
+    const depC = depY / cycles;
+    const d = document.createElement('div');
+    d.className = 'item-block';
+    d.innerHTML = `
+      <div class="item-block-header">
+        <span class="item-label">Fixed Item ${i+1}</span>
+        <button class="del-btn" onclick="removeFixed(${i})">Remove</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Item Name</label>
+          <input type="text" value="${item.name}" oninput="fixedItems[${i}].name=this.value">
+        </div>
+        <div class="field">
+          <label>Investment Cost (EGP)</label>
+          <input type="number" value="${item.cost}" oninput="fixedItems[${i}].cost=parseFloat(this.value)||0; renderFixed()">
+        </div>
+        <div class="field">
+          <label>Asset Lifespan (years)</label>
+          <input type="number" value="${item.years}" min="1" oninput="fixedItems[${i}].years=parseFloat(this.value)||1; renderFixed()">
+        </div>
+        <div class="field" style="justify-content:flex-end; padding-top:18px;">
+          <span style="font-size:0.78rem; color:var(--g3); font-family:'JetBrains Mono',monospace; line-height:1.9;">
+            Dep/year = ${fmt(depY)} EGP<br>
+            Dep/cycle = ${fmt(depC)} EGP
+          </span>
+        </div>
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function addFixed()      { fixedItems.push({name:'New Asset', cost:0, years:5}); renderFixed(); }
+function removeFixed(i)  { fixedItems.splice(i,1); renderFixed(); }
+
+// ═══════════════════════════════════════════════════════════
+//  VARIABLE ITEMS RENDER
+// ═══════════════════════════════════════════════════════════
+function renderVar() {
+  const c = document.getElementById('varContainer');
+  c.innerHTML = '';
+  varItems.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'item-block';
+    d.innerHTML = `
+      <div class="item-block-header">
+        <span class="item-label">${item.name}</span>
+        ${i>0 ? `<button class="del-btn" onclick="removeVar(${i})">Remove</button>` : '<span></span>'}
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Item Name</label>
+          <input type="text" value="${item.name}" oninput="varItems[${i}].name=this.value">
+        </div>
+        <div class="field">
+          <label>Value per Cycle (EGP)</label>
+          <input type="number" value="${item.auto ? '' : item.valueCycle}"
+            ${item.auto ? 'disabled placeholder="Auto: Chicks × Price per chick"' : ''}
+            oninput="varItems[${i}].valueCycle=parseFloat(this.value)||0">
+          ${item.auto ? '<span class="hint">= Chicks × Price per chick (set below)</span>' : ''}
+        </div>
+        ${item.auto ? `
+        <div class="field">
+          <label>Price per Chick (EGP)</label>
+          <input type="number" id="chickPrice" value="7" min="1">
+        </div>` : ''}
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function addVar()     { varItems.push({name:'New Variable Item', valueCycle:0, auto:false}); renderVar(); }
+function removeVar(i) { varItems.splice(i,1); renderVar(); }
+
+// ═══════════════════════════════════════════════════════════
+//  CALCULATE
+// ═══════════════════════════════════════════════════════════
+function calculate() {
+
+  const chicks     = parseFloat(document.getElementById('chicks').value)     || 5000;
+  const cycles     = parseFloat(document.getElementById('cycles').value)     || 6;
+  const mortality  = parseFloat(document.getElementById('mortality').value)  || 2;
+  const avgWeight  = parseFloat(document.getElementById('avgWeight').value)  || 2;
+  const pricePerKg = parseFloat(document.getElementById('pricePerKg').value) || 27;
+  const creditRate = (parseFloat(document.getElementById('creditRate').value) || 14.3) / 100;
+  const litterS    = parseFloat(document.getElementById('litterSales').value)  || 0;
+  const otherR     = parseFloat(document.getElementById('otherReturns').value) || 0;
+  const chickPriceEl = document.getElementById('chickPrice');
+  const chickPrice   = chickPriceEl ? parseFloat(chickPriceEl.value)||7 : 7;
+
+  // ── Returns ──
+  const birdsSold      = chicks * (1 - mortality/100);
+  const broilerSales_C = birdsSold * avgWeight * pricePerKg;
+  const totalReturn_C  = broilerSales_C + litterS + otherR;
+  const totalReturn_Y  = totalReturn_C * cycles;
+
+  // ── Fixed costs ──
+  let totalInvest = 0, totalDepY = 0, totalDepC = 0;
+  const fRows = [];
+  fixedItems.forEach(item => {
+    const dY = item.cost / item.years;
+    const dC = dY / cycles;
+    totalInvest += item.cost;
+    totalDepY   += dY;
+    totalDepC   += dC;
+    fRows.push({ ...item, dY, dC });
+  });
+
+  // ── Variable costs ──
+  varItems[0].valueCycle = chicks * chickPrice;
+  let totalVar_C = 0;
+  const vRows = [];
+  varItems.forEach(item => {
+    totalVar_C += item.valueCycle;
+    vRows.push({ ...item, valueYear: item.valueCycle * cycles });
+  });
+
+  // Labor item (for rounded capital formula)
+  const laborIdx  = varItems.findIndex(v => v.name.toLowerCase().includes('labor'));
+  const laborCost = laborIdx >= 0 ? varItems[laborIdx].valueCycle : 4000;
+  const varNoLabor_C = totalVar_C - laborCost;
+
+  // ── Costs ──
+  const totalCost_C   = totalDepC + totalVar_C;
+  const totalCost_Y   = totalCost_C * cycles;
+
+  // ── Capital ──
+  const totalCapital   = totalInvest + varNoLabor_C;     // working capital for analysis
+  const roundedCapital = varNoLabor_C * cycles;           // rounded/working capital per year
+
+  // ── Net profit (no credit) ──
+  const netProfit_C = totalReturn_C - totalCost_C;
+  const netProfit_Y = netProfit_C * cycles;
+
+  // ── Credit scenarios (annual basis) ──
+  const creditCost50  = totalCapital * 0.5  * creditRate;
+  const creditCost100 = totalCapital * 1.0  * creditRate;
+
+  const totalCost50   = totalCost_Y + creditCost50;
+  const totalCost100  = totalCost_Y + creditCost100;
+
+  const netProfit50   = totalReturn_Y - totalCost50;
+  const netProfit100  = totalReturn_Y - totalCost100;
+
+  // ── Measure builder ──
+  function measures(tc, np) {
+    return {
+      tc, tr: totalReturn_Y, np,
+      pNP_TC:  np / tc  * 100,
+      pTR_TC:  totalReturn_Y / tc * 100,
+      capRate: np / totalInvest * 100,
+      capCycle: totalInvest / np,
+    };
+  }
+  const m0   = measures(totalCost_Y,  netProfit_Y);
+  const m50  = measures(totalCost50,  netProfit50);
+  const m100 = measures(totalCost100, netProfit100);
+
+  // ═══════════════ RENDER ═══════════════
+
+  // KPIs
+  document.getElementById('k_tc_cycle').textContent = fmt(totalCost_C);
+  document.getElementById('k_tr_cycle').textContent = fmt(totalReturn_C);
+  document.getElementById('k_np_cycle').textContent = fmt(netProfit_C);
+  document.getElementById('k_tc_year').textContent  = fmt(totalCost_Y);
+  document.getElementById('k_tr_year').textContent  = fmt(totalReturn_Y);
+  document.getElementById('k_np_year').textContent  = fmt(netProfit_Y);
+
+  // Fixed table
+  let ft = fRows.map(r => `<tr>
+    <td>${r.name}</td>
+    <td class="num">${fmt(r.cost)}</td>
+    <td class="num">${r.years}</td>
+    <td class="num">${fmt(r.dY)}</td>
+    <td class="num">${fmt(r.dC)}</td>
+  </tr>`).join('');
+  ft += `<tr class="total-row">
+    <td>Total</td>
+    <td class="num">${fmt(totalInvest)}</td>
+    <td>—</td>
+    <td class="num">${fmt(totalDepY)}</td>
+    <td class="num">${fmt(totalDepC)}</td>
+  </tr>`;
+  document.getElementById('fixedResultTbody').innerHTML = ft;
+
+  // Variable table
+  let vt = vRows.map(r => `<tr>
+    <td>${r.name}</td>
+    <td class="num">${fmt(r.valueCycle)}</td>
+    <td class="num">${fmt(r.valueYear)}</td>
+  </tr>`).join('');
+  vt += `<tr class="total-row">
+    <td>Total</td>
+    <td class="num">${fmt(totalVar_C)}</td>
+    <td class="num">${fmt(totalVar_C * cycles)}</td>
+  </tr>`;
+  document.getElementById('varResultTbody').innerHTML = vt;
+
+  // Total costs summary
+  document.getElementById('s_fixDep_c').textContent = fmt(totalDepC);
+  document.getElementById('s_fixDep_y').textContent = fmt(totalDepY);
+  document.getElementById('s_var_c').textContent    = fmt(totalVar_C);
+  document.getElementById('s_var_y').textContent    = fmt(totalVar_C * cycles);
+  document.getElementById('s_tot_c').textContent    = fmt(totalCost_C);
+  document.getElementById('s_tot_y').textContent    = fmt(totalCost_Y);
+
+  // Returns table
+  let rt = `<tr>
+    <td>Broiler Sales</td>
+    <td style="font-size:0.79rem; color:var(--muted);">${fmt(birdsSold)} birds × ${avgWeight} kg × ${pricePerKg} EGP/kg</td>
+    <td class="num">${fmt(broilerSales_C)}</td>
+    <td class="num">${fmt(broilerSales_C * cycles)}</td>
+  </tr>
+  <tr>
+    <td>Litter Sales</td>
+    <td style="font-size:0.79rem; color:var(--muted);">—</td>
+    <td class="num">${fmt(litterS)}</td>
+    <td class="num">${fmt(litterS * cycles)}</td>
+  </tr>`;
+  if (otherR > 0) {
+    rt += `<tr>
+      <td>Other Revenue</td>
+      <td>—</td>
+      <td class="num">${fmt(otherR)}</td>
+      <td class="num">${fmt(otherR * cycles)}</td>
+    </tr>`;
+  }
+  rt += `<tr class="total-row">
+    <td>Total Returns</td>
+    <td>—</td>
+    <td class="num">${fmt(totalReturn_C)}</td>
+    <td class="num">${fmt(totalReturn_Y)}</td>
+  </tr>`;
+  document.getElementById('returnTbody').innerHTML = rt;
+
+  // Economic analysis table
+  const rows = [
+    { lbl:'Investment Costs (EGP)',                   f: _ => `<span class="num">${fmt(totalInvest)}</span>` },
+    { lbl:'Total Capital = Inv. + Var. (no labor)',   f: _ => `<span class="num">${fmt(totalCapital)}</span>` },
+    { lbl:'Rounded / Working Capital (annual)',       f: _ => `<span class="num">${fmt(roundedCapital)}</span>` },
+    { lbl:'Total Costs (EGP/year)',                   f: m => `<span class="num">${fmt(m.tc)}</span>` },
+    { lbl:'Total Returns (EGP/year)',                 f: m => `<span class="num">${fmt(m.tr)}</span>` },
+    { lbl:'Net Profit (EGP/year)',                    f: m => money(m.np) },
+    { lbl:'% Net Profit / Total Costs',               f: m => pct(m.pNP_TC) },
+    { lbl:'% Total Returns / Total Costs (BC)',       f: m => pct(m.pTR_TC) },
+    { lbl:'Capital Return Rate (%)',                  f: m => pct(m.capRate) },
+    { lbl:'Capital Cycle (years)',                    f: m => {
+        const cls = m.capCycle > 0 ? 'green-val' : 'red-val';
+        return `<span class="${cls}">${fmtF(m.capCycle)} yrs</span>`;
+      }
+    },
+  ];
+
+  let et = rows.map(row => `<tr>
+    <td>${row.lbl}</td>
+    <td>${row.f(m0)}</td>
+    <td>${row.f(m50)}</td>
+    <td>${row.f(m100)}</td>
+  </tr>`).join('');
+
+  et += `<tr style="background:#fffde7;">
+    <td style="color:#888; font-size:0.78rem;">Credit interest added (EGP/year)</td>
+    <td style="color:#888;">—</td>
+    <td><span style="color:#e65100; font-family:'JetBrains Mono',monospace; font-size:0.8rem;">${fmt(creditCost50)}</span></td>
+    <td><span style="color:#c62828; font-family:'JetBrains Mono',monospace; font-size:0.8rem;">${fmt(creditCost100)}</span></td>
+  </tr>`;
+
+  document.getElementById('econTbody').innerHTML = et;
+
+  // Verdict
+  const vd = document.getElementById('verdictDiv');
+  if (netProfit_Y >= 0) {
+    vd.innerHTML = `<div class="verdict profit">
+      <span class="icon">✅</span>
+      <span>This project is <strong>PROFITABLE</strong> — Annual net profit: <strong>${fmt(netProfit_Y)} EGP</strong></span>
+    </div>`;
+  } else {
+    vd.innerHTML = `<div class="verdict loss">
+      <span class="icon">❌</span>
+      <span>This project is <strong>NOT PROFITABLE</strong> under current parameters — Review costs or selling price.</span>
+    </div>`;
+  }
+
+  document.getElementById('resultsWrap').style.display = 'block';
+  document.getElementById('noResults').style.display   = 'none';
+  goSection('s5', 4);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RESET
+// ═══════════════════════════════════════════════════════════
+function resetAll() {
+  document.getElementById('resultsWrap').style.display = 'none';
+  document.getElementById('noResults').style.display   = 'block';
+  goSection('s1', 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
