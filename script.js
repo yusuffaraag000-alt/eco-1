@@ -121,7 +121,14 @@ function calculateDepText(item, cycles) {
   const depC = depY / cycles;
   return `Dep/year = ${fmt(depY)} EGP<br>Dep/cycle = ${fmt(depC)} EGP`;
 }
-
+function addFixed() {
+  fixedItems.push({ name: "New Asset", cost: 0, years: 5 });
+  renderFixed();
+}
+function removeFixed(i) {
+  fixedItems.splice(i, 1);
+  renderFixed();
+}
 // ═══════════════════════════════════════════════════════════
 //  VARIABLE ITEMS RENDER
 // ═══════════════════════════════════════════════════════════
