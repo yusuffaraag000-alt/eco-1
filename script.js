@@ -69,9 +69,8 @@ function renderFixed() {
   const cycles = parseFloat(document.getElementById("cycles").value) || 6;
   const c = document.getElementById("fixedContainer");
   c.innerHTML = "";
+  
   fixedItems.forEach((item, i) => {
-    const depY = item.cost / item.years;
-    const depC = depY / cycles;
     const d = document.createElement("div");
     d.className = "item-block";
     d.innerHTML = `
@@ -86,16 +85,17 @@ function renderFixed() {
         </div>
         <div class="field">
           <label>Investment Cost (EGP)</label>
-          <input type="number" value="${item.cost}" oninput="fixedItems[${i}].cost=parseFloat(this.value)||0; renderFixed()">
+          <input type="number" value="${item.cost}" 
+            oninput="updateItemValues(${i}, this.value, 'cost')">
         </div>
         <div class="field">
           <label>Asset Lifespan (years)</label>
-          <input type="number" value="${item.years}" min="1" oninput="fixedItems[${i}].years=parseFloat(this.value)||1; renderFixed()">
+          <input type="number" value="${item.years}" min="1" 
+            oninput="updateItemValues(${i}, this.value, 'years')">
         </div>
         <div class="field" style="justify-content:flex-end; padding-top:18px;">
-          <span style="font-size:0.78rem; color:var(--g3); font-family:'JetBrains Mono',monospace; line-height:1.9;">
-            Dep/year = ${fmt(depY)} EGP<br>
-            Dep/cycle = ${fmt(depC)} EGP
+          <span id="dep-calc-${i}" style="font-size:0.78rem; color:var(--g3); font-family:'JetBrains Mono',monospace; line-height:1.9;">
+            ${calculateDepText(item, cycles)}
           </span>
         </div>
       </div>`;
@@ -103,13 +103,23 @@ function renderFixed() {
   });
 }
 
-function addFixed() {
-  fixedItems.push({ name: "New Asset", cost: 0, years: 5 });
-  renderFixed();
+// دالة جديدة لتحديث الأرقام فقط بدون مسح العناصر
+function updateItemValues(index, value, type) {
+  const cycles = parseFloat(document.getElementById("cycles").value) || 6;
+  fixedItems[index][type] = parseFloat(value) || 0;
+  
+  // تحديث النص الحسابي فقط
+  const displaySpan = document.getElementById(`dep-calc-${index}`);
+  if (displaySpan) {
+    displaySpan.innerHTML = calculateDepText(fixedItems[index], cycles);
+  }
 }
-function removeFixed(i) {
-  fixedItems.splice(i, 1);
-  renderFixed();
+
+// دالة مساعدة لحساب النص
+function calculateDepText(item, cycles) {
+  const depY = item.cost / (item.years || 1);
+  const depC = depY / cycles;
+  return `Dep/year = ${fmt(depY)} EGP<br>Dep/cycle = ${fmt(depC)} EGP`;
 }
 
 // ═══════════════════════════════════════════════════════════
